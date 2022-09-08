@@ -1,3 +1,6 @@
 *.suo
 gRPC-ChatBot/ChatBotServer/bin/
 gRPC-ChatBot/ChatBotServer/obj/
+gRPC-ChatBot/ChatBotClient/bin/
+gRPC-ChatBot/ChatBotClient/obj/
+gRPC-ChatBot/.vs/gRPC-ChatBot/DesignTimeBuild/.dtbcache.v2

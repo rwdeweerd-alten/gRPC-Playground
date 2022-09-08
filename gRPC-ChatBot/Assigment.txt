@@ -1,0 +1,36 @@
+ChatBot server steps
+
+Based on Tutorial: https://docs.microsoft.com/en-us/aspnet/core/tutorials/grpc/grpc-start
+
+Prerequisites: VS 2019 with the "ASP.NET and web development" workload
+
+Step 1 - Create ChatBotServer project
+- Create new VS "ASP.Core gRPC Sevice" project "ChatBotServer"
+- Build and check if it runs (trust and install Self-Signed / Development certificate required to run using SSL)
+
+Step 2 - Create ChatBotClient
+- Add new "Console Application" project "ChatBotClient" to solution
+- Add the following (latest stable) NuGet packages to "ChatBotClient" project:
+  * Grpc.Net.Client
+  * Google.Protobuf
+  * Grpc.Tools
+- Add --> New Folder "Protos" to project
+- Add --> Existing Item ... ChatBotServer\Protos\greet.proto 'Add As Link' to the ChatBotClient's Protos folder
+- On the referenced file 'ChatBotClient\Protos\greet.proto' --> Properties --> gRPC Stub Classes --> Client Only
+- Modify Program.cs so that it connects the ChatBotServer
+  add "using ChatBotServer;"
+  Replace main with:
+        static async Task Main(string[] args)
+        {
+            // The port number(5001) must match the port of the gRPC server.
+            using var channel = GrpcChannel.ForAddress("https://localhost:5001");
+
+            var client = new Greeter.GreeterClient(channel);
+            var reply = await client.SayHelloAsync(
+                              new HelloRequest { Name = "ChatBotClient" });
+            Console.WriteLine("Greeting: " + reply.Message);
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();           
+        }
+- On Solution "Set Startup Projects ..." --> Choose multiple startup projects --> Start both projects and ensure that ChatBotServer start first(!)
+
