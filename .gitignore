@@ -1,0 +1,3 @@
+*.suo
+gRPC-ChatBot/ChatBotServer/bin/
+gRPC-ChatBot/ChatBotServer/obj/
