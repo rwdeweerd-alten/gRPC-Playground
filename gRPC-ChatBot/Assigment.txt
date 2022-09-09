@@ -33,4 +33,26 @@ Step 2 - Create ChatBotClient
             Console.ReadKey();           
         }
 - On Solution "Set Startup Projects ..." --> Choose multiple startup projects --> Start both projects and ensure that ChatBotServer start first(!)
+- Start <Multiple Startup Projects>
+- Verify that both Server and Client are started and Client received a Greeting message
+
+Step 3 - Add gRPC Chat service definition
+- In ChatBotServer\Protos --> Add --> New Item --> Protocol Buffer File --> name "chat.proto"
+- chat.proto --> Properties --> Build Action --> Protobuf compiler
+- chat.proto --> Properties --> gRPC Stub Classes --> Server Only
+- Modify chat.proto file:
+  set csharp_namespace = "ChatBot.gRPC"
+  add service definition:
+    // Chat service definition
+    service Chat {
+      // Starts a chat
+      rpc ChitChat(stream ChatMessage) returns (stream ChatMessage) {}
+    }
+
+    // A chat message
+    message ChatMessage {
+      string message = 1;
+    }
+- Add the chat.proto to ChatBotClient\Protos just as we did with greet.proto in Step 2
+- chat.proto --> Properties --> gRPC Stub Classes --> Client Only
 

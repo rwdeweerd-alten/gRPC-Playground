@@ -19,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="..\ChatBotServer\Protos\chat.proto" GrpcServices="Client">
+      <Link>Protos\chat.proto</Link>
+    </Protobuf>
     <Protobuf Include="..\ChatBotServer\Protos\greet.proto" GrpcServices="Client">
       <Link>Protos\greet.proto</Link>
     </Protobuf>

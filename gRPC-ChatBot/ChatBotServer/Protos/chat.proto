@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option csharp_namespace = "ChatBot.gRPC";
+
+// Chat service definition
+service Chat {
+  // Starts a chat
+  rpc ChitChat(stream ChatMessage) returns (stream ChatMessage) {}
+}
+
+// A chat message
+message ChatMessage {
+  string message = 1;
+}
