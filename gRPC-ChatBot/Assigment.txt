@@ -36,7 +36,9 @@ Step 2 - Create ChatBotClient
 - Start <Multiple Startup Projects>
 - Verify that both Server and Client are started and Client received a Greeting message
 
-Step 3 - Add gRPC Chat service definition
+Step 3 - -
+
+Step 4 - Add gRPC Chat service definition
 - In ChatBotServer\Protos --> Add --> New Item --> Protocol Buffer File --> name "chat.proto"
 - chat.proto --> Properties --> Build Action --> Protobuf compiler
 - chat.proto --> Properties --> gRPC Stub Classes --> Server Only
@@ -56,3 +58,21 @@ Step 3 - Add gRPC Chat service definition
 - Add the chat.proto to ChatBotClient\Protos just as we did with greet.proto in Step 2
 - chat.proto --> Properties --> gRPC Stub Classes --> Client Only
 
+Step 5 - Implement Chat service in ChatBotServer
+- Based on https://grpc.io/docs/languages/csharp/basics/#server
+- Add new Class "ChatService" to ChatBotServer\Services
+- Derive it generated Server stub base class "Chat.ChatBase" (in ChatBot.gRPC namespace)
+- In ChatService class
+    - add c'tor with ILogger instance passed in
+    - override ChitChat method
+    - Add impl:
+        while (await requestStream.MoveNext())
+        {
+            var message = requestStream.Current.Message;
+            _logger.LogInformation(message);
+
+            await responseStream.WriteAsync(
+                new ChatMessage() { Message = $"Received: {message}" });
+        }
+- In Startup class
+    - MapGrpcService ChatService endpoint similar to GreeterService
