@@ -24,8 +24,17 @@ namespace ChatBotServer.Services
                 var message = requestStream.Current.Message;
                 _logger.LogInformation($"Received ChitChat message: {message}");
 
+                await SendResponses(responseStream);
+            }
+        }
+
+        private async Task SendResponses(IServerStreamWriter<ChatMessage> responseStream)
+        {
+            for (int i = 0; i< 10; i++)
+            {
+                await Task.Delay(200);
                 await responseStream.WriteAsync(
-                    new ChatMessage() { Message = $"Send response: {message}" });
+                    new ChatMessage() { Message = $"Send response: {i}" });
             }
         }
     }

@@ -17,9 +17,11 @@ namespace ChatBotServer
 
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
+            _logger.LogInformation("Got Hello from: " + request.Name);
+
             return Task.FromResult(new HelloReply
             {
-                Message = "Hello " + request.Name
+                Message = "Hello back: " + request.Name
             });
         }
     }
