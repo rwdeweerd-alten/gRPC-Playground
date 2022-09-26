@@ -19,22 +19,28 @@ namespace ChatBotServer.Services
 
         public override async Task ChitChat(IAsyncStreamReader<ChatMessage> requestStream, IServerStreamWriter<ChatMessage> responseStream, ServerCallContext context)
         {
-            while (await requestStream.MoveNext())
+            int messageCnt = 0;
+            try
             {
-                var message = requestStream.Current.Message;
-                _logger.LogInformation($"Received ChitChat message: {message}");
+                while (await requestStream.MoveNext())
+                {
+                    messageCnt++;
+                    var message = requestStream.Current.Message;
+                    _logger.LogInformation($"Received Chit: {message} Count: {messageCnt}");
 
-                await SendResponses(responseStream);
+                    for (int i = 0; i < 10; i++)
+                    {
+                        await Task.Delay(200);
+                        var msg = $"Chat: {message} {messageCnt}.{i}";
+                        await responseStream.WriteAsync(new ChatMessage() { Message = msg });
+
+                        _logger.LogInformation($"Sent Chat: {msg}");
+                    }
+                }
             }
-        }
-
-        private async Task SendResponses(IServerStreamWriter<ChatMessage> responseStream)
-        {
-            for (int i = 0; i< 10; i++)
+            catch (Exception e)
             {
-                await Task.Delay(200);
-                await responseStream.WriteAsync(
-                    new ChatMessage() { Message = $"Send response: {i}" });
+                _logger.LogInformation($"ChitChat call stopped: {e.Message}");
             }
         }
     }

@@ -4,6 +4,7 @@ using ChatBotServer;    // This isn't a reference to the server, but only the na
 using ChatBot.gRPC;
 using System.Threading.Tasks;
 using System.Threading;
+using Grpc.Core;
 
 namespace ChatBotClient
 {
@@ -37,38 +38,52 @@ namespace ChatBotClient
 
         private static async Task StartChatting(Chat.ChatClient client)
         {
-            Console.WriteLine("Start Chatting. 'x' to return");
+            using var call = client.ChitChat();
+            using var cancellationToken = new CancellationTokenSource();
 
-            using (var call = client.ChitChat())
-            {
-                using (var cancellationToken = new CancellationTokenSource())
-                {
-                    // Start Async task to get response messages from ChatBot
-                    var responseTask =
-                        Task.Run(
-                            async () =>
-                            {
-                                while (await call.ResponseStream.MoveNext(cancellationToken.Token))
-                                {
-                                    Console.WriteLine($"Received ChitChat: {call.ResponseStream.Current.Message}");
-                                }
-                            });
-
-                    // Start chatting to server
-                    var msg = Console.ReadLine();
-                    while (!msg.Equals("x"))
+            // Start Async task to get response messages from ChatBot
+            var responseTask =
+                Task.Run(
+                    async () =>
                     {
-                        await call.RequestStream.WriteAsync(new ChatMessage() { Message = msg });
-                        msg = Console.ReadLine();
-                    }
+                        try
+                        {
+                            while (await call.ResponseStream.MoveNext(cancellationToken.Token))
+                            {
+                                Console.WriteLine($"Received: {call.ResponseStream.Current.Message}");
+                            }
+                        }
+                        catch (RpcException e) when (e.StatusCode == StatusCode.Cancelled)
+                        {
+                            Console.WriteLine($"Cancelled message receival");
+                        }
+                    });
 
-                    // Indicate we're done writing
-                    await call.RequestStream.CompleteAsync();
-
-                    // Wait for alle respones
-                    await responseTask;
-                }
+            // Start chatting to server
+            Console.WriteLine("Start Chatting. 'x' to return immediately. 'c' to wait for responses.");
+            var msg = Console.ReadLine();
+            while (!msg.Equals("x") && !msg.Equals("c"))
+            {
+                await call.RequestStream.WriteAsync(new ChatMessage() { Message = msg });
+                msg = Console.ReadLine();
             }
+
+            if (msg.Equals("c"))
+            {
+                Console.WriteLine("Cancel pending server responses ...");
+                cancellationToken.Cancel();
+            }
+
+            // Indicate we're done writing
+            Console.WriteLine("Complete RequestStream");
+            await call.RequestStream.CompleteAsync();
+
+            // Wait for alle respones
+            Console.WriteLine("Wait for Responses");
+            await responseTask;
+
+            Console.WriteLine("Done");
+            Console.ReadLine();
         }
     }
 }
