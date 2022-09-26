@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "com.chatbotclient";
+
+package chat;
+
+// Chat service definition
+service Chat {
+  // Starts a chat
+  rpc ChitChat(stream ChatMessage) returns (stream ChatMessage) {}
+} 
+
+// A chat message
+message ChatMessage {
+  string message = 1;
+}
