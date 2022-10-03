@@ -76,3 +76,13 @@ Step 5 - Implement Chat service in ChatBotServer
         }
 - In Startup class
     - MapGrpcService ChatService endpoint similar to GreeterService
+
+
+Step 6 - Cancelling or awaiting Chat client
+- Modified method override async Task ChatService.ChitChat(...)
+    - to send numbered replies
+    - Catch exception (in case of client Cancel)
+- Modified StartChatting(...) method in ChatBotClient.Program
+    - Readlines & send them as stream messages to server until 'c' or 'x'
+    - 'c' cancels the server stream using CancellationToken (server stops sending replies)
+    - 'x' just waits util all server replies are received
